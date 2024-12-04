@@ -1,0 +1,24 @@
+{
+  "name": "drizzle-test",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node src/index.ts",
+    "migrate": "npx drizzle-kit generate && npx drizzle-kit migrate"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "drizzle-orm": "^0.37.0",
+    "mysql2": "^3.11.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "dotenv": "^16.4.6",
+    "drizzle-kit": "^0.29.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}
