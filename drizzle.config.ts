@@ -15,7 +15,7 @@ export default defineConfig({
 		password: process.env.DB_PASSWORD,
 		port: Number(process.env.DB_PORT),
 		ssl: {
-			ca: './ssl/singlestore_bundle.pem',
+			ca: './src/ssl/singlestore_bundle.pem',
 			rejectUnauthorized: false
 		}
 	},
