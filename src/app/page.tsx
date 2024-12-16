@@ -1,76 +1,84 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { DataGrid } from '@/components/DataGrid';
-import { Button } from '@/components/ui/Button';
-
-interface User {
-  id: number;
-  name: string;
-  age: number;
-  email: string;
-}
+import { useEffect, useState } from 'react';
 
 export default function Home() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const [users, setUsers] = useState<any[]>([]);
 
   const fetchUsers = async () => {
     const response = await fetch('/api/users');
     const data = await response.json();
     setUsers(data);
-    setLoading(false);
   };
 
-  const handleAddRow = async () => {
-    const newUser = {
-      name: '',
-      age: 0,
-      email: '',
-    };
-    
-    await fetch('/api/users', {
-      method: 'POST',
-      body: JSON.stringify(newUser),
-    });
-    
+  useEffect(() => {
     fetchUsers();
-  };
+  }, []);
 
   const handleUpdateCell = async (id: number, field: string, value: any) => {
-    await fetch('/api/users', {
+    const response = await fetch('/api/users', {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, [field]: value }),
     });
     
-    fetchUsers();
+    if (!response.ok) throw new Error('Failed to update');
+    await fetchUsers();
   };
 
   const handleDeleteRow = async (id: number) => {
-    await fetch('/api/users', {
+    const response = await fetch('/api/users', {
       method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
     
-    fetchUsers();
+    if (!response.ok) throw new Error('Failed to delete');
+    await fetchUsers();
   };
 
-  if (loading) return <div>Loading...</div>;
+  const handleCreateRow = async () => {
+    const timestamp = Date.now();
+    const newUser = {
+      name: `New User_${timestamp}`,
+      age: 25,
+      email: 'new@example.com',
+    };
+
+    const response = await fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newUser),
+    });
+
+    if (!response.ok) throw new Error('Failed to create');
+    
+    const createdUser = await response.json();
+    
+    setUsers(prev => [...prev, createdUser.user]);
+    
+    return createdUser;
+  };
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Users Database</h1>
+    <main className="min-h-screen p-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-[#360061] mb-2">User Management</h1>
+            <p className="text-[#525252]">Powered by SingleStore + Drizzle ORM</p>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <DataGrid
+            data={users}
+            onUpdateCell={handleUpdateCell}
+            onDeleteRow={handleDeleteRow}
+            onCreateRow={handleCreateRow}
+          />
+        </div>
       </div>
-      <DataGrid
-        data={users}
-        onUpdateCell={handleUpdateCell}
-        onDeleteRow={handleDeleteRow}
-      />
-    </div>
+    </main>
   );
 } 

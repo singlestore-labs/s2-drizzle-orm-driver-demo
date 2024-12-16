@@ -2,7 +2,7 @@ import { drizzle } from "drizzle-orm/singlestore";
 import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 import { usersTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import fs from "fs";
 
 async function getConnection() {
@@ -40,11 +40,24 @@ export async function POST(request: Request) {
     const data = await request.json();
     const newUser = {
       ...data,
+      name: `${data.name}`,
       lastUpdated: new Date(),
     };
+    
+    // Insert the new user
     await db.insert(usersTable).values(newUser);
+    
+    // Fetch the newly created user using the unique name
+    const [createdUser] = await db.select()
+      .from(usersTable)
+      .where(eq(usersTable.name, newUser.name))
+      .limit(1);
+      
     await connection.end();
-    return NextResponse.json({ message: "User created" });
+    return NextResponse.json({ 
+      message: "User created",
+      user: createdUser
+    });
   } catch (error) {
     await connection.end();
     return NextResponse.json({ error: "Failed to create user" }, { status: 500 });

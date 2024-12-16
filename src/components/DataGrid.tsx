@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { Button } from './ui/Button';
 
 interface DataGridProps {
   data: any[];
   onUpdateCell: (id: number, field: string, value: any) => Promise<void>;
   onDeleteRow: (id: number) => Promise<void>;
+  onCreateRow: () => Promise<{ user: any }>;
 }
 
-export function DataGrid({ data, onUpdateCell, onDeleteRow }: DataGridProps) {
+export function DataGrid({ data, onUpdateCell, onDeleteRow, onCreateRow }: DataGridProps) {
   const [localData, setLocalData] = useState(data);
   const [editCell, setEditCell] = useState<{ id: number; field: string } | null>(null);
   const [editValue, setEditValue] = useState<string>('');
@@ -21,7 +23,10 @@ export function DataGrid({ data, onUpdateCell, onDeleteRow }: DataGridProps) {
     }
   }, [data]);
 
-  const columns = Object.keys(localData[0] || {}).filter(key => key !== 'id');
+  // Only get columns if we have data
+  const columns = localData.length > 0 
+    ? Object.keys(localData[0]).filter(key => key !== 'id')
+    : [];
 
   const handleDoubleClick = (id: number, field: string, value: any) => {
     setEditCell({ id, field });
@@ -88,55 +93,128 @@ export function DataGrid({ data, onUpdateCell, onDeleteRow }: DataGridProps) {
     }
   };
 
+  const handleCreate = async () => {
+    // Create a temporary ID for the new row
+    const tempId = -Date.now();
+    const timestamp = Date.now();
+    const tempRow = {
+      id: tempId,
+      name: `New User_${timestamp}`,
+      age: 25,
+      email: 'new@example.com',
+    };
+
+    // Update local state immediately
+    setLocalData(prev => [...prev, tempRow]);
+    
+    // Track this create as pending
+    const createKey = `create-${tempId}`;
+    pendingUpdates.current.add(createKey);
+
+    try {
+      const { user: createdUser } = await onCreateRow();
+      // Replace temporary row with actual created row
+      setLocalData(prev => prev.map(row => 
+        row.id === tempId ? createdUser : row
+      ));
+    } catch (error) {
+      // Revert on error
+      setLocalData(prev => prev.filter(row => row.id !== tempId));
+      alert('Failed to create new row');
+    } finally {
+      pendingUpdates.current.delete(createKey);
+    }
+  };
+
+  // Generate a stable unique key for each row
+  const getRowKey = (row: any) => {
+    if (!row || typeof row.id === 'undefined') {
+      return `temp-${Math.random()}`; // Fallback unique key
+    }
+    return row.id < 0 ? `temp-${Math.abs(row.id)}` : `row-${row.id}`;
+  };
+
+  // Don't render the table if there's no data
+  if (localData.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-end">
+          <Button
+            onClick={handleCreate}
+            variant="primary"
+          >
+            Add New User
+          </Button>
+        </div>
+        <div className="text-center p-8 text-[#525252] bg-[#F2F2F2] rounded-lg">
+          No users available. Click "Add New User" to create one.
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full border-collapse">
-        <thead>
-          <tr>
-            {columns.map(column => (
-              <th key={column} className="border p-2 bg-gray-50">
-                {column}
-              </th>
-            ))}
-            <th className="border p-2 bg-gray-50">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {localData.map(row => (
-            <tr key={row.id}>
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button
+          onClick={handleCreate}
+          variant="primary"
+        >
+          Add New User
+        </Button>
+      </div>
+      <div className="overflow-hidden rounded-lg border border-[#F2F2F2]">
+        <table className="min-w-full border-collapse">
+          <thead>
+            <tr className="bg-[#F2F2F2]">
               {columns.map(column => (
-                <td
-                  key={`${row.id}-${column}`}
-                  className="border p-2"
-                  onDoubleClick={() => handleDoubleClick(row.id, column, row[column])}
-                >
-                  {editCell?.id === row.id && editCell?.field === column ? (
-                    <input
-                      type={column === 'age' ? 'number' : 'text'}
-                      value={editValue}
-                      onChange={e => setEditValue(e.target.value)}
-                      onBlur={handleUpdate}
-                      onKeyDown={handleKeyDown}
-                      autoFocus
-                      className="w-full p-1 border rounded"
-                    />
-                  ) : (
-                    row[column]
-                  )}
-                </td>
+                <th key={`header-${column}`} className="px-4 py-3 text-left text-sm font-medium text-[#360061] uppercase tracking-wider">
+                  {column}
+                </th>
               ))}
-              <td className="border p-2">
-                <button
-                  onClick={() => handleDelete(row.id)}
-                  className="text-red-600 hover:text-red-800"
-                >
-                  Delete
-                </button>
-              </td>
+              <th className="px-4 py-3 text-left text-sm font-medium text-[#360061] uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white divide-y divide-[#F2F2F2]">
+            {localData.map(row => (
+              <tr key={getRowKey(row)} className="hover:bg-[#F2F2F2]/50 transition-colors">
+                {columns.map(column => (
+                  <td
+                    key={`${getRowKey(row)}-${column}`}
+                    className="px-4 py-3 text-sm text-[#525252]"
+                    onDoubleClick={() => handleDoubleClick(row.id, column, row[column])}
+                  >
+                    {editCell?.id === row.id && editCell?.field === column ? (
+                      <input
+                        type={column === 'age' ? 'number' : 'text'}
+                        value={editValue}
+                        onChange={e => setEditValue(e.target.value)}
+                        onBlur={handleUpdate}
+                        onKeyDown={handleKeyDown}
+                        autoFocus
+                        className="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-[#D199FF]"
+                      />
+                    ) : (
+                      row[column]
+                    )}
+                  </td>
+                ))}
+                <td className="px-4 py-3 text-sm">
+                  <Button
+                    onClick={() => handleDelete(row.id)}
+                    variant="danger"
+                    size="sm"
+                  >
+                    Delete
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 } 
