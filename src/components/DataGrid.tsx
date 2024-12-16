@@ -137,53 +137,55 @@ export function DataGrid({ data, onUpdateCell, onDeleteRow, onCreateRow }: DataG
   // Don't render the table if there's no data
   if (localData.length === 0) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex justify-end">
           <Button
             onClick={handleCreate}
             variant="primary"
+            className="px-6 py-2.5 text-sm font-medium rounded-full shadow-sm transition-all hover:shadow-md"
           >
             Add New User
           </Button>
         </div>
-        <div className="text-center p-8 text-[#525252] bg-[#F2F2F2] rounded-lg">
-          No users available. Click "Add New User" to create one.
+        <div className="text-center p-12 bg-gray-50 rounded-2xl border border-gray-100">
+          <p className="text-gray-500 text-sm">No users available. Click "Add New User" to create one.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex justify-end">
         <Button
           onClick={handleCreate}
           variant="primary"
+          className="px-6 py-2.5 text-sm font-medium rounded-full shadow-sm transition-all hover:shadow-md"
         >
           Add New User
         </Button>
       </div>
-      <div className="overflow-hidden rounded-lg border border-[#F2F2F2]">
+      <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-sm bg-white">
         <table className="min-w-full border-collapse">
           <thead>
-            <tr className="bg-[#F2F2F2]">
+            <tr className="bg-gray-50 border-b border-gray-100">
               {columns.map(column => (
-                <th key={`header-${column}`} className="px-4 py-3 text-left text-sm font-medium text-[#360061] uppercase tracking-wider">
+                <th key={`header-${column}`} className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   {column}
                 </th>
               ))}
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#360061] uppercase tracking-wider">
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-[#F2F2F2]">
+          <tbody className="bg-white divide-y divide-gray-100">
             {localData.map(row => (
-              <tr key={getRowKey(row)} className="hover:bg-[#F2F2F2]/50 transition-colors">
+              <tr key={getRowKey(row)} className="hover:bg-gray-50/50 transition-colors">
                 {columns.map(column => (
                   <td
                     key={`${getRowKey(row)}-${column}`}
-                    className="px-4 py-3 text-sm text-[#525252]"
+                    className="px-6 py-4 text-sm text-gray-600 whitespace-nowrap"
                     onDoubleClick={() => handleDoubleClick(row.id, column, row[column])}
                   >
                     {editCell?.id === row.id && editCell?.field === column ? (
@@ -194,18 +196,19 @@ export function DataGrid({ data, onUpdateCell, onDeleteRow, onCreateRow }: DataG
                         onBlur={handleUpdate}
                         onKeyDown={handleKeyDown}
                         autoFocus
-                        className="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-[#D199FF]"
+                        className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-500 transition-all"
                       />
                     ) : (
                       row[column]
                     )}
                   </td>
                 ))}
-                <td className="px-4 py-3 text-sm">
+                <td className="px-6 py-4 text-sm whitespace-nowrap">
                   <Button
                     onClick={() => handleDelete(row.id)}
                     variant="danger"
                     size="sm"
+                    className="px-4 py-1.5 text-xs font-medium rounded-full transition-all hover:bg-red-600"
                   >
                     Delete
                   </Button>
