@@ -4,20 +4,29 @@
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node src/index.ts",
-    "migrate": "npx drizzle-kit generate && npx drizzle-kit migrate"
+    "start": "next start",
+    "migrate": "npx drizzle-kit generate && npx drizzle-kit migrate",
+    "dev": "next dev",
+    "build": "next build"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "drizzle-orm": "^0.37.0",
-    "mysql2": "^3.11.5"
+    "drizzle-orm": "latest",
+    "mysql2": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
   },
   "devDependencies": {
     "@types/node": "^22.5.0",
+    "@types/react": "19.0.1",
+    "autoprefixer": "^10.4.20",
     "dotenv": "^16.4.6",
     "drizzle-kit": "^0.29.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   }
