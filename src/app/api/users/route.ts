@@ -4,6 +4,7 @@ import mysql from "mysql2/promise";
 import { usersTable } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import fs from "fs";
+import path from "path";
 
 async function getConnection() {
   return await mysql.createConnection({
@@ -13,7 +14,7 @@ async function getConnection() {
     password: process.env.DB_PASSWORD,
     port: Number(process.env.DB_PORT),
     ssl: {
-      ca: fs.readFileSync('./src/ssl/singlestore_bundle.pem'),
+        ca: fs.readFileSync(path.join(process.cwd(), 'src/ssl/singlestore_bundle.pem')),
     }
   });
 }
