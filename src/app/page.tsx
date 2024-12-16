@@ -2,6 +2,8 @@
 
 import { DataGrid } from '@/components/DataGrid';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import SingleStoreLogo from './singlestore_logo.svg';
 
 export default function Home() {
   const [users, setUsers] = useState<any[]>([]);
@@ -64,7 +66,12 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col items-start max-w-3xl mx-auto mb-12">
+        <div className="flex flex-col items-center max-w-3xl mx-auto mb-12">
+          <Image
+            src={SingleStoreLogo}
+            alt="SingleStore Logo"
+            className="h-12 w-auto mb-8"
+          />
           <h1 className="text-4xl font-bold text-gray-900 mb-3">User Management</h1>
           <p className="text-lg text-gray-600">Powered by SingleStore + Drizzle ORM</p>
         </div>
@@ -76,6 +83,27 @@ export default function Home() {
             onCreateRow={handleCreateRow}
           />
         </div>
+        <footer className="mt-12 text-center text-gray-600">
+          <div className="space-x-4">
+            <a 
+              href="https://github.com/singlestore-labs/s2-drizzle-orm-driver-demo" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-gray-900 underline"
+            >
+              GitHub Repository
+            </a>
+            <span>•</span>
+            <a 
+              href="https://orm.drizzle.team" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-gray-900 underline"
+            >
+              Drizzle ORM
+            </a>
+          </div>
+        </footer>
       </div>
     </main>
   );
