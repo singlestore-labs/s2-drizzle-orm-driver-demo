@@ -95,7 +95,7 @@ export default function Home() {
             </a>
             <span>•</span>
             <a 
-              href="https://orm.drizzle.team" 
+              href="https://orm.drizzle.team/docs/get-started-singlestore" 
               target="_blank" 
               rel="noopener noreferrer"
               className="hover:text-gray-900 underline"
