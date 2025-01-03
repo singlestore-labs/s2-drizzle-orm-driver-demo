@@ -1,41 +1,28 @@
+import { usersTable } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/singlestore";
 import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
-import { usersTable } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
-import fs from "fs";
-import path from "path";
 
-async function getConnection() {
-  return await mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USERNAME,
-    database: process.env.DB_DATABASE,
-    password: process.env.DB_PASSWORD,
-    port: Number(process.env.DB_PORT),
-    ssl: {
-        ca: fs.readFileSync(path.join(process.cwd(), 'src/ssl/singlestore_bundle.pem')),
-    }
-  });
+const DB_URL = process.env.DB_URL || '';
+if (!DB_URL) {
+	const errorMessage = "Environment variable DB_URL is required\nThe DB_URL should look like: singlestore://user:password@host:port/database\nYou can get the connection string from https://portal.singlestore.com/";
+	console.error(errorMessage);
+  process.exit(1);
 }
 
 export async function GET() {
-  const connection = await getConnection();
-  const db = drizzle(connection);
+  const db = drizzle(DB_URL);
   
   try {
     const users = await db.select().from(usersTable);
-    await connection.end();
     return NextResponse.json(users);
   } catch (error) {
-    await connection.end();
-    return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
+    return NextResponse.json({ error: `Failed to fetch users: ${error}` }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
-  const connection = await getConnection();
-  const db = drizzle(connection);
+  const db = drizzle(DB_URL);
   
   try {
     const data = await request.json();
@@ -54,20 +41,17 @@ export async function POST(request: Request) {
       .where(eq(usersTable.name, newUser.name))
       .limit(1);
       
-    await connection.end();
     return NextResponse.json({ 
       message: "User created",
       user: createdUser
     });
   } catch (error) {
-    await connection.end();
-    return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
+    return NextResponse.json({ error: `Failed to create user: ${error}`}, { status: 500 });
   }
 }
 
 export async function PUT(request: Request) {
-  const connection = await getConnection();
-  const db = drizzle(connection);
+  const db = drizzle(DB_URL);
   
   try {
     const data = await request.json();
@@ -78,28 +62,23 @@ export async function PUT(request: Request) {
     await db.update(usersTable)
       .set(updatedUser)
       .where(eq(usersTable.id, updatedUser.id));
-    await connection.end();
     return NextResponse.json({ message: "User updated" });
   } catch (error) {
     console.error('Update error:', error);
-    await connection.end();
-    return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
+    return NextResponse.json({ error: `Failed to update user: ${error}`}, { status: 500 });
   }
 }
 
 export async function DELETE(request: Request) {
-  const connection = await getConnection();
-  const db = drizzle(connection);
+  const db = drizzle(DB_URL);
   
   try {
     const { id } = await request.json();
     await db.delete(usersTable)
       .where(eq(usersTable.id, id));
-    await connection.end();
     return NextResponse.json({ message: "User deleted" });
   } catch (error) {
     console.error('Delete error:', error);
-    await connection.end();
-    return NextResponse.json({ error: "Failed to delete user" }, { status: 500 });
+    return NextResponse.json({ error: `Failed to delete user: ${error}`}, { status: 500 });
   }
 } 

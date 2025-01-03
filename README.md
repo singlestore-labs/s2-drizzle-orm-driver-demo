@@ -25,11 +25,7 @@ pnpm install
 Create a `.env` file with your Database credentials
 ```python
 # You can get this information from https://portal.singlestore.com/
-DB_USERNAME=<database-user>
-DB_HOST=<database-host>
-DB_PORT=<database-port>
-DB_PASSWORD=<database-password>
-DB_DATABASE=<database-name>
+DB_URL=singlestore://<database-user>:<database-password>@<database-host>:<database-port>/<database-name>?ssl={}
 ```
 
 Apply the database migrations

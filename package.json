@@ -7,7 +7,8 @@
     "start": "next start",
     "migrate": "npx drizzle-kit generate && npx drizzle-kit migrate",
     "dev": "next dev",
-    "build": "next build"
+    "build": "next build",
+    "mytest": "ts-node src/index.ts"
   },
   "author": "",
   "license": "ISC",
