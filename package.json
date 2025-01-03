@@ -7,15 +7,13 @@
     "start": "next start",
     "migrate": "npx drizzle-kit generate && npx drizzle-kit migrate",
     "dev": "next dev",
-    "build": "next build",
-    "mytest": "ts-node src/index.ts"
+    "build": "next build"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
     "drizzle-orm": "latest",
-    "mysql2": "latest",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest"
@@ -28,7 +26,6 @@
     "drizzle-kit": "^0.29.1",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.16",
-    "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   }
 }
